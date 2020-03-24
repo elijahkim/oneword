@@ -23,6 +23,7 @@ defmodule OneWordWeb do
 
       import Plug.Conn
       import OneWordWeb.Gettext
+      import Phoenix.LiveView.Controller
       alias OneWordWeb.Router.Helpers, as: Routes
     end
   end
@@ -41,6 +42,7 @@ defmodule OneWordWeb do
 
       import OneWordWeb.ErrorHelpers
       import OneWordWeb.Gettext
+      import Phoenix.LiveView.Helpers
       alias OneWordWeb.Router.Helpers, as: Routes
     end
   end

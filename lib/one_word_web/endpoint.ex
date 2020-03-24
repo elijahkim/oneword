@@ -10,9 +10,14 @@ defmodule OneWordWeb.Endpoint do
     signing_salt: "scUBvMj+"
   ]
 
-  socket "/socket", OneWordWeb.UserSocket,
-    websocket: true,
-    longpoll: false
+  socket "/socket",
+         OneWordWeb.UserSocket,
+         websocket: true,
+         longpoll: false
+
+  socket "/live",
+         Phoenix.LiveView.Socket,
+         websocket: [connect_info: [session: @session_options]]
 
   # Serve at "/" the static files from "priv/static" directory.
   #

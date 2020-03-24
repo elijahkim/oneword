@@ -17,7 +17,7 @@ config :one_word, OneWordWeb.Endpoint,
   secret_key_base: "FGLOSxtJvOc/8ds6kvcmwQQIFOhAxp9p+unriTHenRJrYXH31TSFUwjd9DjBKRrh",
   render_errors: [view: OneWordWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: OneWord.PubSub, adapter: Phoenix.PubSub.PG2],
-  live_view: [signing_salt: "PvHSPIxc"]
+  live_view: [signing_salt: "E+0239odfWebhJB3ZgCZri3+l87gwv32"]
 
 # Configures Elixir's Logger
 config :logger, :console,
