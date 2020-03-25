@@ -88,7 +88,6 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards} = state) do
-    IO.inspect("cast")
     IO.inspect(word)
 
     cards =

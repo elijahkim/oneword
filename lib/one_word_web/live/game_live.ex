@@ -38,7 +38,7 @@ defmodule OneWordWeb.GameLive do
         <h1><%= assigns.game_state.turn %>'s Turn</h1>
         <div class="game__cards-container">
           <%= for card <- @game_state.cards do %>
-            <button class=<%= get_class(card) %> phx-click="select_card" phx-value-word=<%= card.word %>>
+            <button class=<%= get_class(card) %> phx-click="select_card" phx-value-word="<%= card.word %>">
               <p clasa="game__card-text">
                 <%= card.word %>
               </p>
@@ -65,7 +65,7 @@ defmodule OneWordWeb.GameLive do
   end
 
   def mount(_params, _, socket) do
-    {:ok, assign(socket, game_state: %{})}
+    {:ok, assign(socket, game_state: %{}, test_word: "Yo Yo")}
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do

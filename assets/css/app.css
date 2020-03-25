@@ -6,6 +6,7 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  max-width: 800px;
 }
 
 .game__card-container {
@@ -14,9 +15,17 @@
   margin: 12px;
   height: 72px;
   flex-direction: row;
-  background-color: #e1c699;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  transition: transform .1s;
+  background-color: #e1c699;
+}
+
+.game__card-container:hover {
+  transform: translate(5px, -10px) rotate(2deg);
 }
 
 .game__card-container__chosen-team-1 {
@@ -25,9 +34,12 @@
   margin: 12px;
   height: 72px;
   flex-direction: row;
-  background-color: red;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  background-color: #FFA6A6;
 }
 
 .game__card-container__chosen-team-2 {
@@ -36,9 +48,12 @@
   margin: 12px;
   height: 72px;
   flex-direction: row;
-  background-color: blue;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  background-color: #89cff0;
 }
 
 .game__card-container__chosen-neutral {
@@ -47,9 +62,12 @@
   margin: 12px;
   height: 72px;
   flex-direction: row;
-  background-color: gray;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  background-color: #eeeeee;
 }
 
 .game__card-container__chosen-bomb {
@@ -58,7 +76,10 @@
   margin: 12px;
   height: 72px;
   flex-direction: row;
-  background-color: black;
   justify-content: center;
   align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  background-color: black;
 }
