@@ -7,12 +7,11 @@ defmodule OneWord.GamesManager do
 
   def start_new_game() do
     id = Ecto.UUID.generate()
-    name = {:via, Registry, {GameRegistry, id}}
 
     {:ok, _pid} =
       DynamicSupervisor.start_child(
         __MODULE__,
-        %{id: OneWord.Game, start: {OneWord.Games.Game, :start_link, [name]}, restart: :transient}
+        %{id: OneWord.Game, start: {OneWord.Games.Game, :start_link, [id]}, restart: :transient}
       )
 
     {:ok, id}
