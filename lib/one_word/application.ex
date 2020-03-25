@@ -10,6 +10,8 @@ defmodule OneWord.Application do
     children = [
       # Start the Ecto repository
       OneWord.Repo,
+      OneWord.GamesManager,
+      {Registry, keys: :unique, name: GameRegistry},
       # Start the endpoint when the application starts
       OneWordWeb.Endpoint
       # Starts a worker by calling: OneWord.Worker.start_link(arg)

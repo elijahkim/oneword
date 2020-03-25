@@ -18,10 +18,6 @@ defmodule OneWordWeb.Router do
     pipe_through :browser
 
     live "/", RootLive
+    live "/game/:id", GameLive
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", OneWordWeb do
-  #   pipe_through :api
-  # end
 end
