@@ -1,4 +1,64 @@
 /* This file is for your main application css. */
 
-@import "./phoenix.css";
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
+
+.game__cards-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.game__card-container {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  background-color: #e1c699;
+  justify-content: center;
+  align-items: center;
+}
+
+.game__card-container__chosen-team-1 {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  background-color: red;
+  justify-content: center;
+  align-items: center;
+}
+
+.game__card-container__chosen-team-2 {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  background-color: blue;
+  justify-content: center;
+  align-items: center;
+}
+
+.game__card-container__chosen-neutral {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  background-color: gray;
+  justify-content: center;
+  align-items: center;
+}
+
+.game__card-container__chosen-bomb {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  background-color: black;
+  justify-content: center;
+  align-items: center;
+}

@@ -5,7 +5,6 @@ defmodule OneWord.Games.Game do
 
   @words "../../../words.csv"
          |> Path.expand(__DIR__)
-         |> IO.inspect()
          |> File.stream!()
          |> CSV.decode!()
          |> Enum.to_list()
@@ -42,6 +41,12 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast(:start)
   end
 
+  def guess(id, word) do
+    id
+    |> name_via
+    |> GenServer.cast({:guess, word})
+  end
+
   def get_state(id) do
     id
     |> name_via
@@ -68,7 +73,6 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast(:start, %{state: :lobby, id: id} = state) do
-    IO.inspect("cast")
     cards = create_new_game()
 
     state =
@@ -83,9 +87,27 @@ defmodule OneWord.Games.Game do
   end
 
   @impl true
-  def handle_call({:join, username}, from, %{team_1: team_1, team_2: team_2} = state) do
-    IO.inspect(from)
+  def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards} = state) do
+    IO.inspect("cast")
+    IO.inspect(word)
 
+    cards =
+      Enum.map(cards, fn
+        %{word: ^word} = card -> Map.put(card, :chosen, true)
+        card -> card
+      end)
+
+    state =
+      state
+      |> Map.put(:cards, cards)
+
+    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_call({:join, username}, from, %{team_1: team_1, team_2: team_2} = state) do
     state =
       case length(team_1) > length(team_2) do
         true ->
