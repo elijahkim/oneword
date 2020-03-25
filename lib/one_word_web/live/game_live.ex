@@ -7,13 +7,13 @@ defmodule OneWordWeb.GameLive do
     case assigns.game_state do
       %{state: :lobby} ->
         ~L"""
-        <h1>Team 1</h1>
+        <h1>Team 1 - red</h1>
         <ul>
           <%= for player <- @game_state.team_1 do %>
             <li><%= player %></li>
           <% end %>
         </ul>
-        <h1>Team 2</h1>
+        <h1>Team 2 - blue</h1>
         <ul>
           <%= for player <- @game_state.team_2 do %>
             <li><%= player %></li>
@@ -45,6 +45,10 @@ defmodule OneWordWeb.GameLive do
             </button>
           <% end %>
         </div>
+        <div>
+          <p>Team 1: <%= get_remaining(assigns, :team_1) %> remaining</p>
+          <p>Team 2: <%= get_remaining(assigns, :team_2) %> remaining</p>
+        </div>
         """
 
       _ ->
@@ -52,6 +56,13 @@ defmodule OneWordWeb.GameLive do
         <h1>loading</h1>
         """
     end
+  end
+
+  def get_remaining(assigns, team) do
+    Enum.count(assigns.game_state.cards, fn
+      %{type: ^team, chosen: false} -> true
+      _ -> false
+    end)
   end
 
   def get_class(card) do

@@ -88,8 +88,6 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards} = state) do
-    IO.inspect(word)
-
     cards =
       Enum.map(cards, fn
         %{word: ^word} = card -> Map.put(card, :chosen, true)
@@ -99,6 +97,7 @@ defmodule OneWord.Games.Game do
     state =
       state
       |> Map.put(:cards, cards)
+      |> swap_turn()
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
 
@@ -128,6 +127,10 @@ defmodule OneWord.Games.Game do
   def handle_call(:get_cards, _from, %{cards: cards} = state) do
     {:reply, cards, state}
   end
+
+  defp swap_turn(%{turn: :team_1} = state), do: Map.put(state, :turn, :team_2)
+
+  defp swap_turn(%{turn: :team_2} = state), do: Map.put(state, :turn, :team_1)
 
   defp name_via(id) do
     {:via, Registry, {GameRegistry, id}}

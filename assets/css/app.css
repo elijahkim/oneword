@@ -2,6 +2,13 @@
 
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
 
+:root {
+  --beige: #e1c699;
+  --red: #FFA6A6;
+  --blue: #89cff0;
+  --gray: #eeeeee;
+}
+
 .game__cards-container {
   display: flex;
   flex-direction: row;
@@ -21,7 +28,7 @@
   border: none;
 
   transition: transform .1s;
-  background-color: #e1c699;
+  background-color: var(--beige)
 }
 
 .game__card-container:hover {
@@ -39,7 +46,7 @@
   border-radius: 8px;
   border: none;
 
-  background-color: #FFA6A6;
+  background-color: var(--red);
 }
 
 .game__card-container__chosen-team-2 {
@@ -53,7 +60,7 @@
   border-radius: 8px;
   border: none;
 
-  background-color: #89cff0;
+  background-color: var(--blue);
 }
 
 .game__card-container__chosen-neutral {
@@ -67,7 +74,7 @@
   border-radius: 8px;
   border: none;
 
-  background-color: #eeeeee;
+  background-color: var(--gray);
 }
 
 .game__card-container__chosen-bomb {
