@@ -35,58 +35,23 @@
   transform: translate(5px, -10px) rotate(2deg);
 }
 
-.game__card-container__chosen-team-1 {
-  display: flex;
-  width: 120px;
-  margin: 12px;
-  height: 72px;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  border: none;
-
+.game__card-team-1 {
   background-color: var(--red);
 }
 
-.game__card-container__chosen-team-2 {
-  display: flex;
-  width: 120px;
-  margin: 12px;
-  height: 72px;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  border: none;
-
+.game__card-team-2 {
   background-color: var(--blue);
 }
 
-.game__card-container__chosen-neutral {
-  display: flex;
-  width: 120px;
-  margin: 12px;
-  height: 72px;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  border: none;
-
+.game__card-neutral {
   background-color: var(--gray);
 }
 
-.game__card-container__chosen-bomb {
-  display: flex;
-  width: 120px;
-  margin: 12px;
-  height: 72px;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  border: none;
-
+.game__card-bomb {
   background-color: black;
+  color: white;
+}
+
+.game__card__revealed {
+  filter: brightness(0.6)
 }

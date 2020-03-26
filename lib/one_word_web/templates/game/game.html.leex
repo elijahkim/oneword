@@ -1,0 +1,28 @@
+<h1><%= assigns.game_state.turn %>'s Turn</h1>
+
+<%= if is_captain(@game_state, @name) do %>
+  <div class="game__cards-container">
+    <%= for card <- @game_state.cards do %>
+      <div class="<%= get_spymaster_class(card) %>">
+        <p clasa="game__card-text">
+          <%= card.word %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="game__cards-container">
+    <%= for card <- @game_state.cards do %>
+      <button class="<%= get_class(card) %>" phx-click="select_card" phx-value-word="<%= card.word %>">
+        <p clasa="game__card-text">
+          <%= card.word %>
+        </p>
+      </button>
+    <% end %>
+  </div>
+<% end %>
+
+<div>
+  <p>Team 1: <%= get_remaining(assigns, :team_1) %> remaining</p>
+  <p>Team 2: <%= get_remaining(assigns, :team_2) %> remaining</p>
+</div>

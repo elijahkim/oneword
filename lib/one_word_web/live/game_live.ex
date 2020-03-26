@@ -1,55 +1,15 @@
 defmodule OneWordWeb.GameLive do
   use OneWordWeb, :live
-  alias OneWord.GamesManager
   alias OneWord.Games.Game
+  alias OneWordWeb.GameView
 
   def render(assigns) do
     case assigns.game_state do
       %{state: :lobby} ->
-        ~L"""
-        <h1>Team 1 - red</h1>
-        <ul>
-          <%= for player <- @game_state.team_1 do %>
-            <li><%= player %></li>
-          <% end %>
-        </ul>
-        <h1>Team 2 - blue</h1>
-        <ul>
-          <%= for player <- @game_state.team_2 do %>
-            <li><%= player %></li>
-          <% end %>
-        </ul>
-
-        <form phx-submit="join">
-          <input type="text" name="username" phx-debounce="blur"/>
-
-          <button type=submit>
-            Join
-          </button>
-        </form>
-
-        <button phx-click="start">
-          Start
-        </button>
-        """
+        Phoenix.View.render(GameView, "lobby.html", assigns)
 
       %{state: :playing} ->
-        ~L"""
-        <h1><%= assigns.game_state.turn %>'s Turn</h1>
-        <div class="game__cards-container">
-          <%= for card <- @game_state.cards do %>
-            <button class=<%= get_class(card) %> phx-click="select_card" phx-value-word="<%= card.word %>">
-              <p clasa="game__card-text">
-                <%= card.word %>
-              </p>
-            </button>
-          <% end %>
-        </div>
-        <div>
-          <p>Team 1: <%= get_remaining(assigns, :team_1) %> remaining</p>
-          <p>Team 2: <%= get_remaining(assigns, :team_2) %> remaining</p>
-        </div>
-        """
+        Phoenix.View.render(GameView, "game.html", assigns)
 
       _ ->
         ~L"""
@@ -58,25 +18,8 @@ defmodule OneWordWeb.GameLive do
     end
   end
 
-  def get_remaining(assigns, team) do
-    Enum.count(assigns.game_state.cards, fn
-      %{type: ^team, chosen: false} -> true
-      _ -> false
-    end)
-  end
-
-  def get_class(card) do
-    case card do
-      %{chosen: true, type: :team_1} -> "game__card-container__chosen-team-1"
-      %{chosen: true, type: :team_2} -> "game__card-container__chosen-team-2"
-      %{chosen: true, type: :neutral} -> "game__card-container__chosen-neutral"
-      %{chosen: true, type: :bomb} -> "game__card-container__chosen-bomb"
-      %{chosen: false} -> "game__card-container"
-    end
-  end
-
   def mount(_params, _, socket) do
-    {:ok, assign(socket, game_state: %{}, test_word: "Yo Yo")}
+    {:ok, assign(socket, game_state: %{}, has_joined: false, on_team: nil, name: nil)}
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
@@ -88,9 +31,16 @@ defmodule OneWordWeb.GameLive do
   end
 
   def handle_event("join", %{"username" => name}, %{assigns: %{id: id}} = socket) do
-    state = Game.join(id, name)
+    {team, state} = Game.join(id, name)
 
-    {:noreply, assign(socket, game_state: state)}
+    {:noreply,
+     assign(
+       socket,
+       game_state: state,
+       has_joined: true,
+       on_team: team,
+       name: name
+     )}
   end
 
   def handle_event("start", _, %{assigns: %{id: id, game_state: %{state: :lobby}}} = socket) do
@@ -105,8 +55,13 @@ defmodule OneWordWeb.GameLive do
     {:noreply, socket}
   end
 
+  def handle_event("change_team", %{"team" => team}, %{assigns: %{id: id, name: name}} = socket) do
+    {team, state} = Game.change_team(id, team, name)
+
+    {:noreply, assign(socket, on_team: team, game_state: state)}
+  end
+
   def handle_info({_, new_state}, socket) do
-    IO.inspect(new_state)
     {:noreply, assign(socket, :game_state, new_state)}
   end
 end
