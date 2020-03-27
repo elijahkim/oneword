@@ -9,7 +9,6 @@ defmodule OneWord.Application do
     # List all child processes to be supervised
     children = [
       # Start the Ecto repository
-      OneWord.Repo,
       OneWord.GamesManager,
       {Registry, keys: :unique, name: GameRegistry},
       # Start the endpoint when the application starts

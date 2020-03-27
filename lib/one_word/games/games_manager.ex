@@ -11,7 +11,11 @@ defmodule OneWord.GamesManager do
     {:ok, _pid} =
       DynamicSupervisor.start_child(
         __MODULE__,
-        %{id: OneWord.Game, start: {OneWord.Games.Game, :start_link, [id]}, restart: :transient}
+        %{
+          id: OneWord.Game,
+          start: {OneWord.Games.Game, :start_link, [id]},
+          restart: :transient
+        }
       )
 
     {:ok, id}
