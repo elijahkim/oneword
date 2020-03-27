@@ -1,5 +1,13 @@
 <h1><%= assigns.game_state.turn %>'s Turn</h1>
 
+<button phx-click="change_turn">
+  Change Turns
+</button>
+
+<button phx-click="end_game">
+  End Game
+</button>
+
 <%= if is_captain(@game_state, @name) do %>
   <div class="game__cards-container">
     <%= for card <- @game_state.cards do %>

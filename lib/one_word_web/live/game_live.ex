@@ -61,6 +61,18 @@ defmodule OneWordWeb.GameLive do
     {:noreply, assign(socket, on_team: team, game_state: state)}
   end
 
+  def handle_event("change_turn", _, %{assigns: %{id: id}} = socket) do
+    Game.change_turn(id)
+
+    {:noreply, socket}
+  end
+
+  def handle_event("end_game", _, %{assigns: %{id: id}} = socket) do
+    Game.end_game(id)
+
+    {:noreply, socket}
+  end
+
   def handle_info({_, new_state}, socket) do
     {:noreply, assign(socket, :game_state, new_state)}
   end

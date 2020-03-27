@@ -41,10 +41,22 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast(:start)
   end
 
+  def end_game(id) do
+    id
+    |> name_via
+    |> GenServer.cast(:end_game)
+  end
+
   def guess(id, word) do
     id
     |> name_via
     |> GenServer.cast({:guess, word})
+  end
+
+  def change_turn(id) do
+    id
+    |> name_via
+    |> GenServer.cast(:change_turn)
   end
 
   def get_state(id) do
@@ -111,6 +123,24 @@ defmodule OneWord.Games.Game do
   end
 
   @impl true
+  def handle_cast(:change_turn, %{state: :playing, id: id} = state) do
+    state = swap_turn(state)
+
+    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:change_turn, state})
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast(:end_game, %{state: :playing, id: id} = state) do
+    state = Map.put(state, :state, :lobby)
+
+    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:end_game, state})
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards} = state) do
     cards =
       Enum.map(cards, fn
@@ -121,7 +151,6 @@ defmodule OneWord.Games.Game do
     state =
       state
       |> Map.put(:cards, cards)
-      |> swap_turn()
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:guess, state})
 
