@@ -11,7 +11,7 @@ use Mix.Config
 # before starting your production server.
 config :one_word, OneWordWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "young-cove-96882.herokuapp.com", port: 443],
+  url: [scheme: "https", host: "oneword.elijah.kim", port: 443],
   force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
 # Do not print debug messages in production
