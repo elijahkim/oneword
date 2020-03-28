@@ -11,8 +11,10 @@ use Mix.Config
 # before starting your production server.
 config :one_word, OneWordWeb.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [scheme: "https", host: "oneword.elijah.kim", port: 443],
-  force_ssl: [rewrite_on: [:x_forwarded_proto]]
+  url: [scheme: "http", host: "oneword.elijah.kim", port: 80]
+
+# url: [scheme: "https", host: "oneword.elijah.kim", port: 443],
+# force_ssl: [rewrite_on: [:x_forwarded_proto]]
 
 # Do not print debug messages in production
 config :logger, level: :info
