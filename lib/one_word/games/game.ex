@@ -118,8 +118,8 @@ defmodule OneWord.Games.Game do
       |> Map.put(:cards, cards)
       |> Map.put(:state, :playing)
       |> Map.put(:turn, :red)
-      |> Map.put(:red_captain, red_captain)
-      |> Map.put(:blue_captain, blue_captain)
+      |> Map.put(:red_captain, red_captain.id)
+      |> Map.put(:blue_captain, blue_captain.id)
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
 
@@ -182,10 +182,6 @@ defmodule OneWord.Games.Game do
     {:noreply, state}
   end
 
-  def find_member(team, id) do
-    Enum.find(team, &(&1.id == id))
-  end
-
   @impl true
   def handle_cast({:join, user_id, username}, %{id: id} = state) do
     state =
@@ -197,20 +193,6 @@ defmodule OneWord.Games.Game do
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:new_team, state})
 
     {:noreply, state}
-  end
-
-  defp add_user(user_id, name, %{red: red, blue: blue} = state) do
-    case length(red) > length(blue) do
-      true ->
-        Map.put(state, :blue, [%{id: user_id, name: name} | blue])
-
-      false ->
-        Map.put(state, :red, [%{id: user_id, name: name} | red])
-    end
-  end
-
-  defp user_ids(%{red: red, blue: blue}) do
-    user_ids_for_team(red) ++ user_ids_for_team(blue)
   end
 
   defp user_ids_for_team(team) do
@@ -225,6 +207,24 @@ defmodule OneWord.Games.Game do
   @impl true
   def handle_call(:get_cards, _from, %{cards: cards} = state) do
     {:reply, cards, state}
+  end
+
+  defp add_user(user_id, name, %{red: red, blue: blue} = state) do
+    case length(red) > length(blue) do
+      true ->
+        Map.put(state, :blue, [%{id: user_id, name: name} | blue])
+
+      false ->
+        Map.put(state, :red, [%{id: user_id, name: name} | red])
+    end
+  end
+
+  def find_member(team, id) do
+    Enum.find(team, &(&1.id == id))
+  end
+
+  defp user_ids(%{red: red, blue: blue}) do
+    user_ids_for_team(red) ++ user_ids_for_team(blue)
   end
 
   defp get_captains(%{red: red, blue: blue}) do

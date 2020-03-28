@@ -8,8 +8,8 @@ defmodule OneWordWeb.GameView do
     end)
   end
 
-  def is_captain(%{team_1_captain: t1, team_2_captain: t2}, name) do
-    name in [t1, t2]
+  def is_captain?(%{red_captain: t1, blue_captain: t2}, user_id) do
+    user_id in [t1, t2]
   end
 
   def get_spymaster_class(card) do
@@ -28,8 +28,8 @@ defmodule OneWordWeb.GameView do
   def get_class(card) do
     modifier =
       case card do
-        %{chosen: true, type: :team_1} -> "game__card-team-1"
-        %{chosen: true, type: :team_2} -> "game__card-team-2"
+        %{chosen: true, type: :red} -> "game__card-red"
+        %{chosen: true, type: :blue} -> "game__card-blue"
         %{chosen: true, type: :neutral} -> "game__card-neutral"
         %{chosen: true, type: :bomb} -> "game__card-bomb"
         _ -> ""

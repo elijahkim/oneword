@@ -1,4 +1,4 @@
-<h1><%= assigns.game_state.turn %>'s Turn</h1>
+<h1><%= assigns.game_state.turn %>'s turn</h1>
 
 <button phx-click="change_turn">
   Change Turns
@@ -8,7 +8,7 @@
   End Game
 </button>
 
-<%= if is_captain(@game_state, @name) do %>
+<%= if is_captain?(@game_state, @user_id) do %>
   <div class="game__cards-container">
     <%= for card <- @game_state.cards do %>
       <div class="<%= get_spymaster_class(card) %>">
@@ -31,13 +31,13 @@
 <% end %>
 
 <div class="game__scoreboard-container">
-  <%= for team <- [:team_1, :team_2] do %>
+  <%= for team <- [:red, :blue] do %>
     <div class="game__team-container">
-      <h3>Team 1 - <%= get_remaining(assigns, team) %> remaining</h3>
+      <h3>Team <%= team %> - <%= get_remaining(assigns, team) %> remaining</h3>
       <ul>
-        <%= for member <- @game_state[team] do %>
+        <%= for %{name: name, id: id} <- @game_state[team] do %>
           <li>
-            <%= member %> <%= if (member == @game_state[:"#{team}_captain"]), do: "(Captain)" %>
+            <%= name %> <%= if (id == @game_state[:"#{team}_captain"]), do: "(Captain)" %>
           </li>
         <% end %>
       </ul>

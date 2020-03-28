@@ -35,11 +35,11 @@
   transform: translate(5px, -10px) rotate(2deg);
 }
 
-.game__card-team-1 {
+.game__card-red {
   background-color: var(--red);
 }
 
-.game__card-team-2 {
+.game__card-blue {
   background-color: var(--blue);
 }
 
