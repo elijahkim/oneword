@@ -1,26 +1,14 @@
 <h1>Team 1 - red</h1>
 <ul>
-  <%= for player <- @game_state.team_1 do %>
-    <li><%= player %></li>
-  <% end %>
-
-  <%= if @on_team == :team_2 do %>
-    <button phx-click="change_team", phx-value-team="team_1">
-      Change Team
-    </button>
+  <%= for %{name: name} <- @game_state.red do %>
+    <li><%= name %></li>
   <% end %>
 </ul>
 
 <h1>Team 2 - blue</h1>
 <ul>
-  <%= for player <- @game_state.team_2 do %>
-    <li><%= player %></li>
-  <% end %>
-
-  <%= if @on_team == :team_1 do %>
-    <button phx-click="change_team", phx-value-team="team_2">
-      Change Team
-    </button>
+  <%= for %{name: name} <- @game_state.blue do %>
+    <li><%= name %></li>
   <% end %>
 </ul>
 
@@ -33,6 +21,10 @@
     </button>
   </form>
 <% end %>
+
+<button phx-click="change_team">
+  Change Team
+</button>
 
 <button phx-click="start" disable>
   Start

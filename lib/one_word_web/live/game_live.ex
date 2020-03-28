@@ -18,28 +18,45 @@ defmodule OneWordWeb.GameLive do
     end
   end
 
-  def mount(_params, _, socket) do
-    {:ok, assign(socket, game_state: %{}, has_joined: false, on_team: nil, name: nil)}
+  def mount(_params, %{"user_id" => user_id}, socket) do
+    {:ok,
+     assign(
+       socket,
+       game_state: %{},
+       has_joined: false,
+       on_team: nil,
+       user_id: user_id
+     )}
   end
 
   def handle_params(%{"id" => id}, _uri, socket) do
-    state = Game.get_state(id)
+    game_state = Game.get_state(id)
+    %{assigns: %{user_id: user_id}} = socket
+
+    has_joined = Game.user_in_game?(user_id, game_state)
 
     :ok = Phoenix.PubSub.subscribe(OneWord.PubSub, "game:#{id}")
-
-    {:noreply, assign(socket, id: id, game_state: state)}
-  end
-
-  def handle_event("join", %{"username" => name}, %{assigns: %{id: id}} = socket) do
-    {team, state} = Game.join(id, name)
 
     {:noreply,
      assign(
        socket,
-       game_state: state,
-       has_joined: true,
-       on_team: team,
-       name: name
+       id: id,
+       game_state: game_state,
+       has_joined: has_joined
+     )}
+  end
+
+  def handle_event(
+        "join",
+        %{"username" => name},
+        %{assigns: %{user_id: user_id, id: id}} = socket
+      ) do
+    Game.join(id, user_id, name)
+
+    {:noreply,
+     assign(
+       socket,
+       has_joined: true
      )}
   end
 
@@ -55,10 +72,10 @@ defmodule OneWordWeb.GameLive do
     {:noreply, socket}
   end
 
-  def handle_event("change_team", %{"team" => team}, %{assigns: %{id: id, name: name}} = socket) do
-    {team, state} = Game.change_team(id, team, name)
+  def handle_event("change_team", _, %{assigns: %{id: id, user_id: user_id}} = socket) do
+    Game.change_team(id, user_id)
 
-    {:noreply, assign(socket, on_team: team, game_state: state)}
+    {:noreply, socket}
   end
 
   def handle_event("change_turn", _, %{assigns: %{id: id}} = socket) do
@@ -74,6 +91,7 @@ defmodule OneWordWeb.GameLive do
   end
 
   def handle_info({_, new_state}, socket) do
+    IO.inspect(new_state)
     {:noreply, assign(socket, :game_state, new_state)}
   end
 end

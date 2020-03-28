@@ -8,7 +8,7 @@ defmodule OneWordWeb.RootLive do
     """
   end
 
-  def mount(_params, _, socket) do
+  def mount(_params, %{"uuid" => uuid}, socket) do
     {:ok, socket}
   end
 

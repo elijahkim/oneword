@@ -1,6 +1,7 @@
 defmodule OneWordWeb.Router do
   use OneWordWeb, :router
   import Phoenix.LiveView.Router
+  alias OneWordWeb.Plugs
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -8,6 +9,7 @@ defmodule OneWordWeb.Router do
     plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug Plugs.Identifier
   end
 
   pipeline :api do
