@@ -145,11 +145,15 @@ defmodule OneWord.Games.Game do
   end
 
   @impl true
-  def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards} = state) do
+  def handle_cast({:guess, word}, %{state: :playing, id: id, cards: cards, turn: turn} = state) do
     cards =
       Enum.map(cards, fn
-        %{word: ^word} = card -> Map.put(card, :chosen, true)
-        card -> card
+        %{word: ^word, type: type} = card ->
+          if turn != type, do: change_turn(id)
+          Map.put(card, :chosen, true)
+
+        card ->
+          card
       end)
 
     state =

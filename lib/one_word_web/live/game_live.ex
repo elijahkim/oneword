@@ -4,11 +4,14 @@ defmodule OneWordWeb.GameLive do
   alias OneWordWeb.GameView
 
   def render(assigns) do
-    case assigns.game_state do
-      %{state: :lobby} ->
+    case assigns do
+      %{game_state: %{state: :lobby}} ->
         Phoenix.View.render(GameView, "lobby.html", assigns)
 
-      %{state: :playing} ->
+      %{has_joined: false} ->
+        Phoenix.View.render(GameView, "lobby.html", assigns)
+
+      %{game_state: %{state: :playing}} ->
         Phoenix.View.render(GameView, "game.html", assigns)
 
       _ ->

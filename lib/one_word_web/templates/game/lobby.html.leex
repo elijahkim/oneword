@@ -20,12 +20,14 @@
       Join
     </button>
   </form>
+<% else %>
+  <button phx-click="change_team">
+    Change Team
+  </button>
 <% end %>
 
-<button phx-click="change_team">
-  Change Team
-</button>
-
-<button phx-click="start" disable>
-  Start
-</button>
+<%= if @game_state.state == :lobby do %>
+  <button phx-click="start" disable>
+    Start
+  </button>
+<% end %>
