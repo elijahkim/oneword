@@ -1,5 +1,6 @@
 /* This file is for your main application css. */
 
+@import "./normalize.css";
 @import "../../deps/phoenix_live_view/assets/css/live_view.css";
 
 :root {
@@ -7,51 +8,29 @@
   --red: #FFA6A6;
   --blue: #89cff0;
   --gray: #eeeeee;
+  --off-white: #FFFAF0;
+
+  --small: 12px;
+  --medium: 24px;
+
+  --base-radius: 4px;
 }
 
-.game__cards-container {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  max-width: 800px;
+html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-.game__card-container {
-  display: flex;
-  width: 120px;
-  margin: 12px;
-  height: 72px;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-  border: none;
-
-  transition: transform .1s;
-  background-color: var(--beige)
+body {
+  height: auto;
 }
 
-.game__card-container:hover {
-  transform: translate(5px, -10px) rotate(2deg);
+button {
+  margin: var(--small);
+  padding: var(--small);
 }
 
-.game__card-red {
-  background-color: var(--red);
-}
-
-.game__card-blue {
-  background-color: var(--blue);
-}
-
-.game__card-neutral {
-  background-color: var(--gray);
-}
-
-.game__card-bomb {
-  background-color: black;
-  color: white;
-}
-
-.game__card__revealed {
-  filter: brightness(0.6)
-}
+@import "./root.css";
+@import "./game.css";
+@import "./lobby.css"

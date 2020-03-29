@@ -1,0 +1,32 @@
+.lobby__container {
+  display: flex;
+  width: 100%;
+
+  flex: 1;
+  flex-direction: column;
+  align-items: center;;
+}
+
+.lobby__inner-container {
+  display: flex;
+  width: 720px;
+  background-color: var(--off-white);
+  margin: var(--medium);
+  padding: var(--medium);
+  border-radius: var(--base-radius);
+
+  flex: 1;
+  flex-direction: column;
+}
+
+.lobby__teams-container {
+  display: flex;
+  min-height: 300px;
+}
+
+.lobby__team-container {
+  display: flex;
+
+  flex: 1;
+  flex-direction: column;
+}

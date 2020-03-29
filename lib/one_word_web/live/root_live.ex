@@ -4,7 +4,14 @@ defmodule OneWordWeb.RootLive do
 
   def render(assigns) do
     ~L"""
-    <button phx-click="handle_new_game">New Game</button>
+    <div class="root__container">
+      <div class="root__inner-container">
+        <div class="root__header-container">
+          <h4>Welcome to One Word</h4>
+        </div>
+        <button phx-click="handle_new_game">New Game</button>
+      </div>
+    </div>
     """
   end
 

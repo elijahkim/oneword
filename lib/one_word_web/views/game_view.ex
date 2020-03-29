@@ -16,22 +16,27 @@ defmodule OneWordWeb.GameView do
     modifier =
       case card do
         %{chosen: true} ->
-          "game__card__revealed"
+          "game__card__revealed animated flip"
 
         _ ->
           ""
       end
 
-    "#{get_class(%{card | chosen: true})} #{modifier}"
+    base_class =
+      %{card | chosen: true}
+      |> get_class()
+      |> String.replace_trailing(" animated flip", "")
+
+    "#{base_class} #{modifier}"
   end
 
   def get_class(card) do
     modifier =
       case card do
-        %{chosen: true, type: :red} -> "game__card-red"
-        %{chosen: true, type: :blue} -> "game__card-blue"
-        %{chosen: true, type: :neutral} -> "game__card-neutral"
-        %{chosen: true, type: :bomb} -> "game__card-bomb"
+        %{chosen: true, type: :red} -> "game__card-red animated flip"
+        %{chosen: true, type: :blue} -> "game__card-blue animated flip"
+        %{chosen: true, type: :neutral} -> "game__card-neutral animated flip"
+        %{chosen: true, type: :bomb} -> "game__card-bomb animated flip"
         _ -> ""
       end
 

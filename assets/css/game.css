@@ -1,0 +1,46 @@
+.game__cards-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  max-width: 800px;
+}
+
+.game__card-container {
+  display: flex;
+  width: 120px;
+  margin: 12px;
+  height: 72px;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  border: none;
+
+  transition: transform .1s;
+  background-color: var(--beige)
+}
+
+.game__card-container:hover {
+  transform: translate(5px, -10px) rotate(2deg);
+}
+
+.game__card-red {
+  background-color: var(--red);
+}
+
+.game__card-blue {
+  background-color: var(--blue);
+}
+
+.game__card-neutral {
+  background-color: var(--gray);
+}
+
+.game__card-bomb {
+  background-color: black;
+  color: white;
+}
+
+.game__card__revealed {
+  filter: brightness(0.6)
+}

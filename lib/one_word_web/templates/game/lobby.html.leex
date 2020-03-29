@@ -1,33 +1,43 @@
-<h1>Team 1 - red</h1>
-<ul>
-  <%= for %{name: name} <- @game_state.red do %>
-    <li><%= name %></li>
-  <% end %>
-</ul>
+<div class="lobby__container">
+  <div class="lobby__inner-container">
+    <div class="lobby__teams-container">
+      <div class="lobby__team-container">
+        <h3>Team Red</h3>
+        <div>
+          <%= for %{name: name} <- @game_state.red do %>
+            <p><%= name %></p>
+          <% end %>
+        </div>
+      </div>
 
-<h1>Team 2 - blue</h1>
-<ul>
-  <%= for %{name: name} <- @game_state.blue do %>
-    <li><%= name %></li>
-  <% end %>
-</ul>
+      <div class="lobby__team-container">
+        <h3>Team Blue</h3>
+        <div>
+          <%= for %{name: name} <- @game_state.blue do %>
+            <p><%= name %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
 
-<%= if !@has_joined do %>
-  <form phx-submit="join">
-    <input type="text" name="username" phx-debounce="blur"/>
+    <%= if !@has_joined do %>
+      <form phx-submit="join">
+        <label><input type="text" name="username" placeholder="Name"></label>
 
-    <button type=submit>
-      Join
-    </button>
-  </form>
-<% else %>
-  <button phx-click="change_team">
-    Change Team
-  </button>
-<% end %>
+        <button type=submit>
+          Join
+        </button>
+      </form>
+    <% else %>
+      <button phx-click="change_team">
+        Change Team
+      </button>
+    <% end %>
 
-<%= if @game_state.state == :lobby do %>
-  <button phx-click="start" disable>
-    Start
-  </button>
-<% end %>
+    <%= if @game_state.state == :lobby do %>
+      <button phx-click="start" disable>
+        Start
+      </button>
+    <% end %>
+  </div>
+<div class="lobby__container">
