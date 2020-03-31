@@ -35,9 +35,9 @@
     <div class="game__team-container">
       <h3>Team <%= team %> - <%= get_remaining(assigns, team) %> remaining</h3>
       <ul>
-        <%= for %{name: name, id: id} <- @game_state[team] do %>
+        <%= for {_id, %{name: name, type: type}} <- get_team(team, @game_state) do %>
           <li>
-            <%= name %> <%= if (id == @game_state[:"#{team}_captain"]), do: "(Captain)" %>
+            <%= name %> <%= if type == :captain, do: "(Captain)" %>
           </li>
         <% end %>
       </ul>

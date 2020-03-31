@@ -7,10 +7,6 @@
 # General application configuration
 use Mix.Config
 
-config :one_word,
-  ecto_repos: [OneWord.Repo],
-  generators: [binary_id: true]
-
 # Configures the endpoint
 config :one_word, OneWordWeb.Endpoint,
   url: [host: "localhost"],

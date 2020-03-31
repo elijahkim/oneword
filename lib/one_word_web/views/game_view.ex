@@ -1,6 +1,10 @@
 defmodule OneWordWeb.GameView do
   use OneWordWeb, :view
 
+  def get_team(team, %{players: players}) do
+    Enum.filter(players, fn {_id, player} -> player.team == team end)
+  end
+
   def get_remaining(assigns, team) do
     Enum.count(assigns.game_state.cards, fn
       %{type: ^team, chosen: false} -> true
@@ -8,8 +12,8 @@ defmodule OneWordWeb.GameView do
     end)
   end
 
-  def is_captain?(%{red_captain: t1, blue_captain: t2}, user_id) do
-    user_id in [t1, t2]
+  def is_captain?(%{players: players}, user_id) do
+    players[user_id].type == :captain
   end
 
   def get_spymaster_class(card) do

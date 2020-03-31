@@ -1,6 +1,6 @@
 defmodule OneWord.Games.Game do
   use GenServer
-  alias OneWord.Games.Card
+  alias OneWord.Games.{Card, Player}
   alias Phoenix.PubSub
 
   @words "../../../words.csv"
@@ -10,7 +10,7 @@ defmodule OneWord.Games.Game do
          |> Enum.to_list()
          |> List.flatten()
 
-  def create_new_game() do
+  def shuffle_cards() do
     shuffled = Enum.shuffle(@words)
     {red, shuffled} = Enum.split(shuffled, 9)
     {blue, shuffled} = Enum.split(shuffled, 8)
@@ -77,16 +77,15 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast({:change_team, user_id})
   end
 
-  def user_in_game?(user_id, state) do
-    Enum.member?(user_ids(state), user_id)
+  def user_in_game?(user_id, %{players: players}) do
+    Map.has_key?(players, user_id)
   end
 
   @impl true
   def init(id) do
     initial_state = %{
       state: :lobby,
-      red: [],
-      blue: [],
+      players: %{},
       cards: [],
       id: id
     }
@@ -110,16 +109,14 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast(:start, %{state: :lobby, id: id} = state) do
-    cards = create_new_game()
-    {red_captain, blue_captain} = get_captains(state)
+    cards = shuffle_cards()
 
     state =
       state
       |> Map.put(:cards, cards)
       |> Map.put(:state, :playing)
       |> Map.put(:turn, :red)
-      |> Map.put(:red_captain, red_captain.id)
-      |> Map.put(:blue_captain, blue_captain.id)
+      |> set_captains()
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
 
@@ -166,20 +163,14 @@ defmodule OneWord.Games.Game do
   end
 
   @impl true
-  def handle_cast({:change_team, user_id}, %{id: id, red: red, blue: blue} = state) do
-    {red, blue} =
-      case {find_member(red, user_id), find_member(blue, user_id)} do
-        {user, nil} when not is_nil(user) ->
-          {Enum.reject(red, &(&1 == user)), [user | blue]}
+  def handle_cast({:change_team, user_id}, %{id: id, players: players} = state) do
+    players =
+      Map.get_and_update(players, user_id, fn
+        %{team: :red} = player -> {player, %{player | team: :blue}}
+        %{team: :blue} = player -> {player, %{player | team: :red}}
+      end)
 
-        {nil, user} when not is_nil(user) ->
-          {[user | red], Enum.reject(blue, &(&1 == user))}
-      end
-
-    state =
-      state
-      |> Map.put(:red, red)
-      |> Map.put(:blue, blue)
+    state = Map.put(state, :players, players)
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:new_team, state})
 
@@ -191,16 +182,12 @@ defmodule OneWord.Games.Game do
     state =
       case user_in_game?(user_id, state) do
         true -> state
-        false -> add_user(user_id, username, state)
+        false -> add_player(user_id, username, state)
       end
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:new_team, state})
 
     {:noreply, state}
-  end
-
-  defp user_ids_for_team(team) do
-    Enum.map(team, & &1.id)
   end
 
   @impl true
@@ -213,26 +200,43 @@ defmodule OneWord.Games.Game do
     {:reply, cards, state}
   end
 
-  defp add_user(user_id, name, %{red: red, blue: blue} = state) do
-    case length(red) > length(blue) do
-      true ->
-        Map.put(state, :blue, [%{id: user_id, name: name} | blue])
+  def add_player(user_id, name, %{players: players} = state) do
+    grouped = Enum.group_by(players, fn {_id, player} -> player.team end)
+    red = Map.get(grouped, :red, [])
+    blue = Map.get(grouped, :blue, [])
 
-      false ->
-        Map.put(state, :red, [%{id: user_id, name: name} | red])
-    end
+    players =
+      case length(red) > length(blue) do
+        true ->
+          Map.put(
+            players,
+            user_id,
+            Player.new(%{id: user_id, team: :blue, type: :guesser, name: name})
+          )
+
+        false ->
+          Map.put(
+            players,
+            user_id,
+            Player.new(%{id: user_id, team: :red, type: :guesser, name: name})
+          )
+      end
+
+    Map.put(state, :players, players)
   end
 
-  def find_member(team, id) do
-    Enum.find(team, &(&1.id == id))
-  end
+  def set_captains(%{players: players} = state) do
+    %{blue: blue, red: red} = Enum.group_by(players, fn {_id, user} -> user.team end)
 
-  defp user_ids(%{red: red, blue: blue}) do
-    user_ids_for_team(red) ++ user_ids_for_team(blue)
-  end
+    {red_id, red_captain} = Enum.random(red)
+    {blue_id, blue_captain} = Enum.random(blue)
 
-  defp get_captains(%{red: red, blue: blue}) do
-    {Enum.random(red), Enum.random(blue)}
+    players =
+      players
+      |> Map.put(red_id, %{red_captain | type: :captain})
+      |> Map.put(blue_id, %{blue_captain | type: :captain})
+
+    %{state | players: players}
   end
 
   defp swap_turn(%{turn: :red} = state), do: Map.put(state, :turn, :blue)
