@@ -69,8 +69,12 @@ defmodule OneWordWeb.GameLive do
     {:noreply, socket}
   end
 
-  def handle_event("select_card", %{"word" => word}, %{assigns: %{id: id}} = socket) do
-    Game.guess(id, word)
+  def handle_event(
+        "select_card",
+        %{"word" => word},
+        %{assigns: %{user_id: user_id, id: id}} = socket
+      ) do
+    Game.guess(id, user_id, word)
 
     {:noreply, socket}
   end
