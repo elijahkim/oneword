@@ -116,7 +116,7 @@ defmodule OneWord.Games.Game do
       |> Map.put(:cards, cards)
       |> Map.put(:state, :playing)
       |> Map.put(:turn, :red)
-      |> set_captains()
+      |> set_spymasters()
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
 
@@ -160,20 +160,6 @@ defmodule OneWord.Games.Game do
       end
 
     {:noreply, state}
-  end
-
-  defp guess(word, %{id: id, turn: turn, cards: cards} = state) do
-    cards =
-      Enum.map(cards, fn
-        %{word: ^word, type: type} = card ->
-          if turn != type, do: change_turn(id)
-          Map.put(card, :chosen, true)
-
-        card ->
-          card
-      end)
-
-    Map.put(state, :cards, cards)
   end
 
   @impl true
@@ -239,18 +225,32 @@ defmodule OneWord.Games.Game do
     Map.put(state, :players, players)
   end
 
-  def set_captains(%{players: players} = state) do
+  def set_spymasters(%{players: players} = state) do
     %{blue: blue, red: red} = Enum.group_by(players, fn {_id, user} -> user.team end)
 
-    {red_id, red_captain} = Enum.random(red)
-    {blue_id, blue_captain} = Enum.random(blue)
+    {red_id, red_spymaster} = Enum.random(red)
+    {blue_id, blue_spymaster} = Enum.random(blue)
 
     players =
       players
-      |> Map.put(red_id, %{red_captain | type: :captain})
-      |> Map.put(blue_id, %{blue_captain | type: :captain})
+      |> Map.put(red_id, %{red_spymaster | type: :spymaster})
+      |> Map.put(blue_id, %{blue_spymaster | type: :spymaster})
 
     %{state | players: players}
+  end
+
+  defp guess(word, %{id: id, turn: turn, cards: cards} = state) do
+    cards =
+      Enum.map(cards, fn
+        %{word: ^word, type: type} = card ->
+          if turn != type, do: change_turn(id)
+          Map.put(card, :chosen, true)
+
+        card ->
+          card
+      end)
+
+    Map.put(state, :cards, cards)
   end
 
   defp swap_turn(%{turn: :red} = state), do: Map.put(state, :turn, :blue)

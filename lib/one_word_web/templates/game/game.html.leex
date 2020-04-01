@@ -8,7 +8,7 @@
   End Game
 </button>
 
-<%= if is_captain?(@game_state, @user_id) do %>
+<%= if is_spymaster?(@game_state, @user_id) do %>
   <div class="game__cards-container">
     <%= for card <- @game_state.cards do %>
       <div class="<%= get_spymaster_class(card) %>">
@@ -37,7 +37,7 @@
       <ul>
         <%= for {_id, %{name: name, type: type}} <- get_team(team, @game_state) do %>
           <li>
-            <%= name %> <%= if type == :captain, do: "(Captain)" %>
+            <%= name %> <%= if type == :spymaster, do: "(Spymaster)" %>
           </li>
         <% end %>
       </ul>

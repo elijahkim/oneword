@@ -12,8 +12,8 @@ defmodule OneWordWeb.GameView do
     end)
   end
 
-  def is_captain?(%{players: players}, user_id) do
-    players[user_id].type == :captain
+  def is_spymaster?(%{players: players}, user_id) do
+    players[user_id].type == :spymaster
   end
 
   def get_spymaster_class(card) do
