@@ -4,7 +4,7 @@
       <div class="lobby__team-container">
         <h3>Team Red</h3>
         <div>
-          <%= for {id, %{name: name}} <- get_team(:red, @game_state) do %>
+          <%= for {_id, %{name: name}} <- get_team(:red, @game_state) do %>
             <p><%= name %></p>
           <% end %>
         </div>
@@ -13,7 +13,7 @@
       <div class="lobby__team-container">
         <h3>Team Blue</h3>
         <div>
-          <%= for {id, %{name: name}} <- get_team(:blue, @game_state) do %>
+          <%= for {_id, %{name: name}} <- get_team(:blue, @game_state) do %>
             <p><%= name %></p>
           <% end %>
         </div>

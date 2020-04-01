@@ -12,7 +12,17 @@ defmodule OneWordWeb.GameView do
     end)
   end
 
-  def is_spymaster?(%{players: players}, user_id) do
+  def clue_allowed?(%{game_state: :spymaster, players: players, turn: turn}, user_id) do
+    player = players[user_id]
+
+    player.type == :spymaster && player.team == turn
+  end
+
+  def clue_allowed?(_game_state, _user_id) do
+    false
+  end
+
+  def spymaster?(%{players: players}, user_id) do
     players[user_id].type == :spymaster
   end
 

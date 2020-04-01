@@ -8,7 +8,7 @@
   End Game
 </button>
 
-<%= if is_spymaster?(@game_state, @user_id) do %>
+<%= if spymaster?(@game_state, @user_id) do %>
   <div class="game__cards-container">
     <%= for card <- @game_state.cards do %>
       <div class="<%= get_spymaster_class(card) %>">
@@ -42,5 +42,25 @@
         <% end %>
       </ul>
     </div>
+  <% end %>
+</div>
+
+<div class="game__clues-container">
+  <h3>Clues</h3>
+  <ul>
+    <%= for %{word: word, team: team, number: number} <- @game_state.clues do %>
+      <li>Team: <%= team %> - <%= word %>, <%= number %></li>
+    <% end %>
+  </ul>
+
+  <%= if clue_allowed?(@game_state, @user_id) do %>
+    <form phx-submit="give_clue">
+      <label><input type="text" name="clue[word]" placeholder="Word"></label>
+      <label><input type="number" name="clue[number]" placeholder="Number"></label>
+
+      <button type=submit>
+        Give Clue
+      </button>
+    </form>
   <% end %>
 </div>

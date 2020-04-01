@@ -35,6 +35,12 @@ defmodule OneWord.Games.Game do
     |> GenServer.call(:get_cards)
   end
 
+  def get_state(id) do
+    id
+    |> name_via
+    |> GenServer.call(:get_state)
+  end
+
   def start(id) do
     id
     |> name_via
@@ -59,10 +65,10 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast(:change_turn)
   end
 
-  def get_state(id) do
+  def give_clue(id, user_id, clue) do
     id
     |> name_via
-    |> GenServer.call(:get_state)
+    |> GenServer.cast({:give_clue, user_id, clue})
   end
 
   def join(id, user_id, username) do
@@ -85,8 +91,10 @@ defmodule OneWord.Games.Game do
   def init(id) do
     initial_state = %{
       state: :lobby,
+      game_state: :ready,
       players: %{},
       cards: [],
+      clues: [],
       id: id
     }
 
@@ -115,6 +123,7 @@ defmodule OneWord.Games.Game do
       state
       |> Map.put(:cards, cards)
       |> Map.put(:state, :playing)
+      |> Map.put(:game_state, :spymaster)
       |> Map.put(:turn, :red)
       |> set_spymasters()
 
@@ -125,7 +134,10 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast(:change_turn, %{state: :playing, id: id} = state) do
-    state = swap_turn(state)
+    state =
+      state
+      |> swap_turn()
+      |> Map.put(:game_state, :spymaster)
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:change_turn, state})
 
@@ -134,7 +146,10 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast(:end_game, %{state: :playing, id: id} = state) do
-    state = Map.put(state, :state, :lobby)
+    state =
+      state
+      |> Map.put(:state, :lobby)
+      |> Map.put(:game_state, :ready)
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:end_game, state})
 
@@ -143,8 +158,29 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast(
+        {:give_clue, user_id, clue},
+        %{id: id, state: :playing, game_state: :spymaster, turn: turn, players: players} = state
+      ) do
+    player = players[user_id]
+
+    state =
+      case player do
+        %{team: ^turn, type: :spymaster} ->
+          state = give_clue(clue, state)
+          PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:give_clue, state})
+          state
+
+        _ ->
+          state
+      end
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast(
         {:guess, user_id, word},
-        %{state: :playing, id: id, turn: turn, players: players} = state
+        %{state: :playing, game_state: :guesser, id: id, turn: turn, players: players} = state
       ) do
     player = players[user_id]
 
@@ -164,7 +200,7 @@ defmodule OneWord.Games.Game do
 
   @impl true
   def handle_cast({:change_team, user_id}, %{id: id, players: players} = state) do
-    players =
+    {_changed, players} =
       Map.get_and_update(players, user_id, fn
         %{team: :red} = player -> {player, %{player | team: :blue}}
         %{team: :blue} = player -> {player, %{player | team: :red}}
@@ -251,6 +287,14 @@ defmodule OneWord.Games.Game do
       end)
 
     Map.put(state, :cards, cards)
+  end
+
+  defp give_clue(%{"word" => word, "number" => number}, %{clues: clues, turn: turn} = state) do
+    clues = [%{word: word, number: number, team: turn} | clues]
+
+    state
+    |> Map.put(:clues, clues)
+    |> Map.put(:game_state, :guesser)
   end
 
   defp swap_turn(%{turn: :red} = state), do: Map.put(state, :turn, :blue)

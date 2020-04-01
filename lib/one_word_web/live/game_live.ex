@@ -97,6 +97,16 @@ defmodule OneWordWeb.GameLive do
     {:noreply, socket}
   end
 
+  def handle_event(
+        "give_clue",
+        %{"clue" => clue},
+        %{assigns: %{id: id, user_id: user_id}} = socket
+      ) do
+    Game.give_clue(id, user_id, clue)
+
+    {:noreply, socket}
+  end
+
   def handle_info({_, new_state}, socket) do
     IO.inspect(new_state)
     {:noreply, assign(socket, :game_state, new_state)}
