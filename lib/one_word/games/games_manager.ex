@@ -13,7 +13,7 @@ defmodule OneWord.GamesManager do
         __MODULE__,
         %{
           id: OneWord.Game,
-          start: {OneWord.Games.Game, :start_link, [id]},
+          start: {OneWord.Games.Server, :start_link, [id]},
           restart: :transient
         }
       )
