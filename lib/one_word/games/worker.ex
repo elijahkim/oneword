@@ -54,6 +54,19 @@ defmodule OneWord.Games.Server do
   end
 
   @impl true
+  def handle_cast(
+        {:end_turn, user_id},
+        %{id: id, state: :playing, turn: turn, players: players} = state
+      ) do
+    case Map.get(players, user_id) do
+      %{team: ^turn} -> Game.change_turn(id)
+      _ -> :ok
+    end
+
+    {:noreply, state}
+  end
+
+  @impl true
   def handle_cast(:change_turn, %{state: :playing, id: id} = state) do
     state =
       state
@@ -101,13 +114,13 @@ defmodule OneWord.Games.Server do
   @impl true
   def handle_cast(
         {:guess, user_id, word},
-        %{state: :playing, game_state: :guesser, id: id, turn: turn, players: players} = state
+        %{state: :playing, game_state: game_state, id: id, turn: turn, players: players} = state
       ) do
     player = players[user_id]
 
     state =
-      case player do
-        %{team: ^turn, type: :guesser} ->
+      case {player, game_state} do
+        {%{team: ^turn, type: :guesser}, :guesser} ->
           state = guess(word, state)
           PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:guess, state})
           state
@@ -196,22 +209,33 @@ defmodule OneWord.Games.Server do
     %{state | players: players}
   end
 
-  defp guess(word, %{id: id, turn: turn, cards: cards} = state) do
-    cards =
-      Enum.map(cards, fn
-        %{word: ^word, type: type} = card ->
-          if turn != type, do: Game.change_turn(id)
-          Map.put(card, :chosen, true)
+  defp guess(
+         word,
+         %{id: id, turn: turn, cards: cards, clues: [clue | clues]} = state
+       ) do
+    card =
+      cards
+      |> Enum.find(fn card -> card.word == word end)
+      |> Map.put(:chosen, true)
 
-        card ->
-          card
+    cards =
+      cards
+      |> Enum.map(fn
+        %{word: ^word} -> card
+        old_card -> old_card
       end)
 
-    Map.put(state, :cards, cards)
+    clue = %{clue | guesses: clue.guesses + 1}
+
+    if card.type != turn || clue.guesses > clue.number, do: Game.change_turn(id)
+
+    state
+    |> Map.put(:cards, cards)
+    |> Map.put(:clues, [clue | clues])
   end
 
   defp give_clue(%{"word" => word, "number" => number}, %{clues: clues, turn: turn} = state) do
-    clues = [%{word: word, number: number, team: turn} | clues]
+    clues = [%{word: word, number: String.to_integer(number), team: turn, guesses: 0} | clues]
 
     state
     |> Map.put(:clues, clues)

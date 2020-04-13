@@ -53,6 +53,12 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast({:guess, user_id, word})
   end
 
+  def end_turn(id, user_id) do
+    id
+    |> name_via
+    |> GenServer.cast({:end_turn, user_id})
+  end
+
   def change_turn(id) do
     id
     |> name_via
