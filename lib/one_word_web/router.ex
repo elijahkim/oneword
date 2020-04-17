@@ -1,6 +1,7 @@
 defmodule OneWordWeb.Router do
   use OneWordWeb, :router
   import Phoenix.LiveView.Router
+  import Phoenix.LiveDashboard.Router
   alias OneWordWeb.Plugs
 
   pipeline :browser do
@@ -21,5 +22,6 @@ defmodule OneWordWeb.Router do
 
     live "/", RootLive
     live "/game/:id", GameLive
+    live_dashboard "/dashboard", metrics: OneWordWeb.Telemetry
   end
 end

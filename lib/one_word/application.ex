@@ -11,6 +11,7 @@ defmodule OneWord.Application do
       # Start the Ecto repository
       OneWord.GamesManager,
       {Registry, keys: :unique, name: GameRegistry},
+      OneWordWeb.Telemetry,
       # Start the endpoint when the application starts
       OneWordWeb.Endpoint
       # Starts a worker by calling: OneWord.Worker.start_link(arg)
