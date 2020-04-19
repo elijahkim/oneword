@@ -1,7 +1,7 @@
 defmodule OneWord.Games.Server do
   use GenServer
 
-  alias OneWord.Games.{Game, Card, Player}
+  alias OneWord.Games.{Game, Player}
   alias Phoenix.PubSub
 
   def start_link(name) do
@@ -84,6 +84,7 @@ defmodule OneWord.Games.Server do
       state
       |> Map.put(:state, :lobby)
       |> Map.put(:game_state, :ready)
+      |> reset_players()
 
     PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:end_game, state})
 
@@ -207,6 +208,16 @@ defmodule OneWord.Games.Server do
       |> Map.put(blue_id, %{blue_spymaster | type: :spymaster})
 
     %{state | players: players}
+  end
+
+  defp reset_players(%{players: players} = state) do
+    players =
+      players
+      |> Enum.map(fn {id, player} -> {id, %{player | type: :guesser}} end)
+      |> IO.inspect()
+      |> Enum.into(%{})
+
+    Map.put(state, :players, players)
   end
 
   defp guess(
