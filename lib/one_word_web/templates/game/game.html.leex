@@ -46,13 +46,6 @@
 </div>
 
 <div class="game__clues-container">
-  <h3>Clues</h3>
-  <ul>
-    <%= for %{word: word, team: team, number: number} <- @game_state.clues do %>
-      <li>Team: <%= team %> - <%= word %>, <%= number %></li>
-    <% end %>
-  </ul>
-
   <%= if clue_allowed?(@game_state, @user_id) do %>
     <form phx-submit="give_clue">
       <label><input type="text" name="clue[word]" placeholder="Word"></label>
@@ -62,5 +55,11 @@
         Give Clue
       </button>
     </form>
+  <% end %>
+</div>
+
+<div class="game__log-container">
+  <%= for log <- @logs do %>
+    <p><%= log %></p>
   <% end %>
 </div>

@@ -123,7 +123,7 @@ defmodule OneWord.Games.Server do
       case {player, game_state} do
         {%{team: ^turn, type: :guesser}, :guesser} ->
           state = guess(word, state)
-          PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:guess, state})
+          PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:guess, word, state})
           state
 
         _ ->
@@ -236,7 +236,14 @@ defmodule OneWord.Games.Server do
         old_card -> old_card
       end)
 
-    clue = %{clue | guesses: clue.guesses + 1}
+    clue =
+      case card do
+        %{type: ^turn} ->
+          %{clue | guesses: clue.guesses + 1}
+
+        _ ->
+          clue
+      end
 
     if card.type != turn || clue.guesses > clue.number, do: Game.change_turn(id)
 
