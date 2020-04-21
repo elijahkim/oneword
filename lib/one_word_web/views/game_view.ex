@@ -1,5 +1,6 @@
 defmodule OneWordWeb.GameView do
   use OneWordWeb, :view
+  alias OneWord.Games.Log
 
   def get_team(team, %{players: players}) do
     Enum.filter(players, fn {_id, player} -> player.team == team end)
@@ -55,5 +56,70 @@ defmodule OneWordWeb.GameView do
       end
 
     "game__card-container " <> modifier
+  end
+
+  def render_log(
+        %Log{
+          event: :guess,
+          user_id: user_id,
+          team: team,
+          meta: %{word: word}
+        },
+        %{players: players}
+      ) do
+    player = players[user_id]
+
+    ~E"""
+    <p>
+      <span class="<%= team %>-modifier"><%= player.name %></span> Guessed: <%= word %>
+    </p>
+    """
+  end
+
+  def render_log(
+        %Log{
+          event: :give_clue,
+          user_id: user_id,
+          team: team,
+          meta: %{clue: %{"word" => word, "number" => number}}
+        },
+        %{players: players}
+      ) do
+    player = players[user_id]
+
+    ~E"""
+    <p>
+      <span class="<%= team %>-modifier"><%= player.name %></span> gave clue: <%= word %>, <%= number %>
+    </p>
+    """
+  end
+
+  def render_log(%Log{event: :end_game}, _game_state) do
+    ~E"""
+    <p>
+      Game Ended
+    </p>
+    """
+  end
+
+  def render_log(%Log{event: :change_turn, team: team}, _game_state) do
+    ~E"""
+    <p>
+      <span class="<%= team %>-modifier"><%= team %></span> turn ended
+    </p>
+    """
+  end
+
+  def render_log(%Log{event: :game_started}, _game_state) do
+    ~E"""
+    <p>
+      <span>Game started</span>
+    </p>
+    """
+  end
+
+  def render_log(log, _game_state) do
+    IO.inspect(log)
+    ""
   end
 end

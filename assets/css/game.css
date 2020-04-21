@@ -5,6 +5,13 @@
   max-width: 800px;
 }
 
+.game__main {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  max-height: 480px;
+}
+
 .game__card-container {
   display: flex;
   width: 120px;
@@ -45,5 +52,21 @@
   filter: brightness(0.6)
 }
 
-.game__log-container {
+.game__data-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.game__logs-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: scroll;
+  max-height: 400px;
+  margin-bottom: var(--medium)
+}
+
+.game__myself {
+  font-weight: bold;
 }

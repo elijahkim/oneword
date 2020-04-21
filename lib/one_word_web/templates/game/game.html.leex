@@ -1,4 +1,6 @@
-<h1><%= assigns.game_state.turn %>'s turn</h1>
+<h1 class="<%= assigns.game_state.turn %>-modifier">
+  <%= assigns.game_state.turn %>'s turn
+</h1>
 
 <button phx-click="change_turn">
   Change Turns
@@ -8,58 +10,62 @@
   End Game
 </button>
 
-<%= if spymaster?(@game_state, @user_id) do %>
-  <div class="game__cards-container">
-    <%= for card <- @game_state.cards do %>
-      <div class="<%= get_spymaster_class(card) %>">
-        <p clasa="game__card-text">
-          <%= card.word %>
-        </p>
-      </div>
+<div class="game__main">
+  <%= if spymaster?(@game_state, @user_id) do %>
+    <div class="game__cards-container">
+      <%= for card <- @game_state.cards do %>
+        <div class="<%= get_spymaster_class(card) %>">
+          <p clasa="game__card-text">
+            <%= card.word %>
+          </p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="game__cards-container">
+      <%= for card <- @game_state.cards do %>
+        <button class="<%= get_class(card) %>" phx-click="select_card" phx-value-word="<%= card.word %>">
+          <p clasa="game__card-text">
+            <%= card.word %>
+          </p>
+        </button>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="game__data-container">
+    <div class="game__logs-container">
+      <%= for log <- @logs do %>
+        <%= render_log(log, @game_state) %>
+      <% end %>
+    </div>
+
+    <%= if clue_allowed?(@game_state, @user_id) do %>
+      <form phx-submit="give_clue">
+        <label><input type="text" name="clue[word]" placeholder="Word"></label>
+        <label><input type="number" name="clue[number]" placeholder="Number"></label>
+
+        <button type=submit>
+          Give Clue
+        </button>
+      </form>
     <% end %>
   </div>
-<% else %>
-  <div class="game__cards-container">
-    <%= for card <- @game_state.cards do %>
-      <button class="<%= get_class(card) %>" phx-click="select_card" phx-value-word="<%= card.word %>">
-        <p clasa="game__card-text">
-          <%= card.word %>
-        </p>
-      </button>
-    <% end %>
-  </div>
-<% end %>
+</div>
 
 <div class="game__scoreboard-container">
   <%= for team <- [:red, :blue] do %>
     <div class="game__team-container">
-      <h3>Team <%= team %> - <%= get_remaining(assigns, team) %> remaining</h3>
+      <h3 class="<%= team %>-modifier">
+        Team <%= team %> - <%= get_remaining(assigns, team) %> remaining
+      </h3>
       <ul>
-        <%= for {_id, %{name: name, type: type}} <- get_team(team, @game_state) do %>
-          <li>
+        <%= for {id, %{name: name, type: type}} <- get_team(team, @game_state) do %>
+          <li class=<%= if @user_id == id, do: "game__myself" %>>
             <%= name %> <%= if type == :spymaster, do: "(Spymaster)" %>
           </li>
         <% end %>
       </ul>
     </div>
-  <% end %>
-</div>
-
-<div class="game__clues-container">
-  <%= if clue_allowed?(@game_state, @user_id) do %>
-    <form phx-submit="give_clue">
-      <label><input type="text" name="clue[word]" placeholder="Word"></label>
-      <label><input type="number" name="clue[number]" placeholder="Number"></label>
-
-      <button type=submit>
-        Give Clue
-      </button>
-    </form>
-  <% end %>
-</div>
-
-<div class="game__log-container">
-  <%= for log <- @logs do %>
-    <p><%= log %></p>
   <% end %>
 </div>

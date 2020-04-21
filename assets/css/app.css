@@ -30,6 +30,14 @@ button {
   padding: var(--small);
 }
 
+.red-modifier {
+  color: var(--red);
+}
+
+.blue-modifier {
+  color: var(--blue);
+}
+
 @import "./root.css";
 @import "./game.css";
 @import "./lobby.css"

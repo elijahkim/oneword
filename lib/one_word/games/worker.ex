@@ -1,7 +1,7 @@
 defmodule OneWord.Games.Server do
   use GenServer
 
-  alias OneWord.Games.{Game, Player}
+  alias OneWord.Games.{Game, Player, Log}
   alias Phoenix.PubSub
 
   def start_link(name) do
@@ -48,7 +48,7 @@ defmodule OneWord.Games.Server do
       |> Map.put(:turn, :red)
       |> set_spymasters()
 
-    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:game_started, state})
+    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {%Log{event: :game_started}, state})
 
     {:noreply, state}
   end
@@ -59,7 +59,7 @@ defmodule OneWord.Games.Server do
         %{id: id, state: :playing, turn: turn, players: players} = state
       ) do
     case Map.get(players, user_id) do
-      %{team: ^turn} -> Game.change_turn(id)
+      %{team: ^turn} -> Game.change_turn(id, user_id)
       _ -> :ok
     end
 
@@ -67,13 +67,17 @@ defmodule OneWord.Games.Server do
   end
 
   @impl true
-  def handle_cast(:change_turn, %{state: :playing, id: id} = state) do
+  def handle_cast({:change_turn, user_id}, %{turn: turn, state: :playing, id: id} = state) do
     state =
       state
       |> swap_turn()
       |> Map.put(:game_state, :spymaster)
 
-    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:change_turn, state})
+    PubSub.broadcast(
+      OneWord.PubSub,
+      "game:#{id}",
+      {%Log{user_id: user_id, team: turn, event: :change_turn}, state}
+    )
 
     {:noreply, state}
   end
@@ -86,7 +90,7 @@ defmodule OneWord.Games.Server do
       |> Map.put(:game_state, :ready)
       |> reset_players()
 
-    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:end_game, state})
+    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {%Log{event: :end_game}, state})
 
     {:noreply, state}
   end
@@ -102,7 +106,13 @@ defmodule OneWord.Games.Server do
       case player do
         %{team: ^turn, type: :spymaster} ->
           state = give_clue(clue, state)
-          PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:give_clue, state})
+
+          PubSub.broadcast(
+            OneWord.PubSub,
+            "game:#{id}",
+            {%Log{event: :give_clue, team: turn, user_id: user_id, meta: %{clue: clue}}, state}
+          )
+
           state
 
         _ ->
@@ -123,7 +133,13 @@ defmodule OneWord.Games.Server do
       case {player, game_state} do
         {%{team: ^turn, type: :guesser}, :guesser} ->
           state = guess(word, state)
-          PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:guess, word, state})
+
+          PubSub.broadcast(
+            OneWord.PubSub,
+            "game:#{id}",
+            {%Log{event: :guess, team: turn, user_id: user_id, meta: %{word: word}}, state}
+          )
+
           state
 
         _ ->
@@ -143,7 +159,11 @@ defmodule OneWord.Games.Server do
 
     state = Map.put(state, :players, players)
 
-    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:new_team, state})
+    PubSub.broadcast(
+      OneWord.PubSub,
+      "game:#{id}",
+      {%Log{user_id: user_id, event: :change_team}, state}
+    )
 
     {:noreply, state}
   end
@@ -156,7 +176,11 @@ defmodule OneWord.Games.Server do
         false -> add_player(user_id, username, state)
       end
 
-    PubSub.broadcast(OneWord.PubSub, "game:#{id}", {:new_team, state})
+    PubSub.broadcast(
+      OneWord.PubSub,
+      "game:#{id}",
+      {%Log{user_id: user_id, event: :new_team}, state}
+    )
 
     {:noreply, state}
   end
@@ -214,7 +238,6 @@ defmodule OneWord.Games.Server do
     players =
       players
       |> Enum.map(fn {id, player} -> {id, %{player | type: :guesser}} end)
-      |> IO.inspect()
       |> Enum.into(%{})
 
     Map.put(state, :players, players)

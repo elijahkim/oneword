@@ -59,10 +59,10 @@ defmodule OneWord.Games.Game do
     |> GenServer.cast({:end_turn, user_id})
   end
 
-  def change_turn(id) do
+  def change_turn(id, user_id \\ nil) do
     id
     |> name_via
-    |> GenServer.cast(:change_turn)
+    |> GenServer.cast({:change_turn, user_id})
   end
 
   def give_clue(id, user_id, clue) do

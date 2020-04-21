@@ -1,6 +1,6 @@
 defmodule OneWordWeb.GameLive do
   use OneWordWeb, :live
-  alias OneWord.Games.Game
+  alias OneWord.Games.{Game, Log}
   alias OneWordWeb.GameView
 
   def render(assigns) do
@@ -108,51 +108,7 @@ defmodule OneWordWeb.GameLive do
     {:noreply, socket}
   end
 
-  def handle_info(broadcast, %{assigns: %{logs: logs}} = socket) do
-    {event, new_state} = handle_broadcast(broadcast)
-
-    logs =
-      case event do
-        nil -> logs
-        event -> [event | logs]
-      end
-
-    {:noreply, assign(socket, game_state: new_state, logs: logs)}
-  end
-
-  defp handle_broadcast({:game_started, state}) do
-    {"Game Started", state}
-  end
-
-  defp handle_broadcast({:change_turn, state}) do
-    {"Change Turn", state}
-  end
-
-  defp handle_broadcast({:end_game, state}) do
-    {"Game Ended", state}
-  end
-
-  defp handle_broadcast({:give_clue, %{clues: [clue | _clues]} = state}) do
-    %{word: word, number: number, team: team} = clue
-
-    {"Team #{team} - New Clue - #{word} - #{number}", state}
-  end
-
-  defp handle_broadcast({:guess, word, %{turn: turn, clues: [clue | _clues]} = state}) do
-    %{number: number, guesses: guesses, team: ^turn} = clue
-
-    {"Team #{turn} - Guess - #{word} - #{number - guesses + 1} guesses remaining", state}
-  end
-
-  defp handle_broadcast({:new_team, state}) do
-    {nil, state}
-  end
-
-  defp handle_broadcast({:change_team, state}) do
-    {nil, state}
-  end
-
-  defp handle_broadcast({:join, state}) do
-    {nil, state}
+  def handle_info({%Log{} = event, new_state}, %{assigns: %{logs: logs}} = socket) do
+    {:noreply, assign(socket, game_state: new_state, logs: [event | logs])}
   end
 end
