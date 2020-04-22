@@ -125,14 +125,19 @@ defmodule OneWord.Games.Server do
   @impl true
   def handle_cast(
         {:guess, user_id, word},
-        %{state: :playing, game_state: game_state, id: id, turn: turn, players: players} = state
+        %{
+          state: :playing,
+          game_state: game_state,
+          cards: cards,
+          id: id,
+          turn: turn,
+          players: players
+        } = state
       ) do
-    player = players[user_id]
-
     state =
-      case {player, game_state} do
-        {%{team: ^turn, type: :guesser}, :guesser} ->
-          state = guess(word, state)
+      case {players[user_id], game_state, Enum.find(cards, fn card -> card.word == word end)} do
+        {%{team: ^turn, type: :guesser}, :guesser, %{chosen: false} = card} ->
+          state = guess(card, state)
 
           PubSub.broadcast(
             OneWord.PubSub,
@@ -244,17 +249,11 @@ defmodule OneWord.Games.Server do
   end
 
   defp guess(
-         word,
+         %{word: word} = card,
          %{id: id, turn: turn, cards: cards, clues: [clue | clues]} = state
        ) do
-    card =
-      cards
-      |> Enum.find(fn card -> card.word == word end)
-      |> Map.put(:chosen, true)
-
     cards =
-      cards
-      |> Enum.map(fn
+      Enum.map(cards, fn
         %{word: ^word} -> card
         old_card -> old_card
       end)
