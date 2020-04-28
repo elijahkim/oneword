@@ -20,6 +20,7 @@ defmodule OneWordWeb.Router do
   scope "/", OneWordWeb do
     pipe_through :browser
 
+    get "/development", SoundController, :index
     live "/", RootLive
     live "/game/:id", GameLive
     live_dashboard "/dashboard", metrics: OneWordWeb.Telemetry

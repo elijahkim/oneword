@@ -13,7 +13,8 @@ defmodule OneWord.Application do
       {Registry, keys: :unique, name: GameRegistry},
       OneWordWeb.Telemetry,
       # Start the endpoint when the application starts
-      OneWordWeb.Endpoint
+      OneWordWeb.Endpoint,
+      OneWord.Presence
       # Starts a worker by calling: OneWord.Worker.start_link(arg)
       # {OneWord.Worker, arg},
     ]

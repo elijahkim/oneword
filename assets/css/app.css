@@ -30,6 +30,27 @@ button {
   padding: var(--small);
 }
 
+.modal-container {
+  width: 100vh;
+  height: 100vh;
+  position: fixed;
+  display: flex;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+
+  align-items: center;
+  justify-content: center;
+}
+
+.none {
+  display: none;
+}
+
+.display {
+  display: flex;
+}
+
 .red-modifier {
   color: var(--red);
 }
