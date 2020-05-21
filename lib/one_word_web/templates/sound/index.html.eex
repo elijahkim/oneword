@@ -1,2 +1,4 @@
 <canvas id="canvas">
 </canvas>
+
+<audio id="remoteVideo" autoplay></audio>

@@ -87,7 +87,7 @@ defmodule OneWordWeb.GameView do
       ) do
     player = players[user_id]
 
-    ~E"""
+    ~L"""
     <p>
       <span class="<%= team %>-modifier"><%= player.name %></span> gave clue: <%= word %>, <%= number %>
     </p>

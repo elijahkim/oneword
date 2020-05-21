@@ -22,6 +22,8 @@ defmodule OneWordWeb.RootLive do
   end
 
   def mount(_params, %{"user_id" => _user_id}, socket) do
+    IO.inspect(Map.get(socket.assigns, :foo), label: :assigns)
+    socket = assign(socket, :foo, :bar)
     {:ok, assign(socket, display: :none)}
   end
 

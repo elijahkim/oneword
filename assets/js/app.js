@@ -39,18 +39,94 @@ liveSocket.connect()
 
 const canvas = document.getElementById('canvas');
 
+async function createPeer() {
+  // const configuration = {'iceServers': [{'urls': 'stun:stun.l.google.com:19302'}]}
+  const configuration = {}
+  const peerConnection = new RTCPeerConnection(configuration)
+
+  const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: false})
+
+  stream.getTracks().forEach((track) => {
+    peerConnection.addTrack(track)
+  })
+
+  const remoteStream = new MediaStream();
+  const remoteVideo = document.querySelector('#remoteVideo');
+  remoteVideo.vol = 100
+  remoteVideo.srcObject = remoteStream;
+
+  peerConnection.addEventListener('track', async (event) => {
+    remoteStream.addTrack(event.track, remoteStream);
+  });
+
+  return peerConnection
+}
+
+async function createOffer(peer) {
+  const offer = await peer.createOffer()
+  peer.setLocalDescription(offer)
+  return offer
+}
+
 if (canvas) {
   let users = {};
+  let connections = {};
   const ctx = canvas.getContext('2d');
   const uuid = create_UUID()
+
   let socket = new Socket("/socket", {params: {user_id: uuid}})
   socket.connect()
-  let channel = socket.channel("users")
-  channel.on("new_msg", msg => console.log("Got message", msg) )
 
-  channel.on("presence_state", msg => {
-    console.log("Presence State", msg)
+  let channel = socket.channel("users")
+  let myChannel = socket.channel(`users:${uuid}`)
+
+  myChannel.on("new_offer", async msg => {
+    console.log("NEW OFFER")
+    const {from, offer} = msg
+    console.log(from)
+    console.log(offer)
+
+    let peerConnection = await createPeer()
+    console.log(peerConnection)
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer))
+
+    const answer = await peerConnection.createAnswer()
+    console.log(answer)
+    await peerConnection.setLocalDescription(answer)
+
+    console.log("sending answer")
+    myChannel.push("send_answer", {answer, to: from})
+  })
+
+  myChannel.on("answer", async msg => {
+    console.log("ANSWER")
+    const {from, answer} = msg
+    console.log(from)
+    console.log(answer)
+
+    const remoteDesc = await new RTCSessionDescription(answer);
+    const connection = connections[from]
+    await connection.setRemoteDescription(remoteDesc);
+
+    console.log("DONE")
+    console.log(connection)
+  })
+
+  channel.on("presence_state", async msg => {
     users = _.assign(users, _.mapValues(msg, (join) => join.metas[0].position))
+    const userIds = Object.keys(users).filter((item) => item !== uuid)
+
+    console.log("PRESENSCE STATE USER IDS", userIds)
+    console.log("ME", uuid)
+
+    userIds.forEach(async (id) => {
+      const peer = await createPeer()
+      const offer = await createOffer(peer)
+
+      connections[id] = peer
+      console.log("sending offer")
+      channel.push(`send_offer:${id}`, offer)
+    })
 
     _.forEach(users, (position) => {
       if (position) {
@@ -61,7 +137,6 @@ if (canvas) {
 
   channel.on("presence_diff", msg => {
     canvas.width = canvas.width
-    console.log("Diff", msg)
     users = _.omit(users, _.keys(msg.leaves))
     users = _.assign(users, _.mapValues(msg.joins, (join) => join.metas[0].position))
 
@@ -71,7 +146,13 @@ if (canvas) {
       }
     })
   })
+
   channel.join()
+    .receive("ok", ({messages}) => console.log("catching up", messages) )
+    .receive("error", ({reason}) => console.log("failed join", reason) )
+    .receive("timeout", () => console.log("Networking issue. Still waiting..."))
+
+  myChannel.join()
     .receive("ok", ({messages}) => console.log("catching up", messages) )
     .receive("error", ({reason}) => console.log("failed join", reason) )
     .receive("timeout", () => console.log("Networking issue. Still waiting..."))

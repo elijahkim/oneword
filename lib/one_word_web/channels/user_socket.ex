@@ -4,6 +4,7 @@ defmodule OneWordWeb.UserSocket do
   ## Channels
   # channel "room:*", OneWordWeb.RoomChannel
   channel "users", OneWordWeb.UserChannel
+  channel "users:*", OneWordWeb.UsersChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

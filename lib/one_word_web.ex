@@ -51,6 +51,7 @@ defmodule OneWordWeb do
     quote do
       use Phoenix.LiveView, layout: {OneWordWeb.LayoutView, "live.html"}
       alias OneWordWeb.Router.Helpers, as: Routes
+      use Phoenix.HTML
     end
   end
 
